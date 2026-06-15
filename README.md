@@ -40,7 +40,7 @@ LED turns ON / OFF
 
 ---
 
-## 🛠️ Technologies Used
+## Technologies Used
 
 | Technology | Role |
 |---|---|
