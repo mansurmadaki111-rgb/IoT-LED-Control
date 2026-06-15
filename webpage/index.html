@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IoT LED Control</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #0f0f0f;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .card {
+            background: #1a1a1a;
+            border-radius: 24px;
+            padding: 50px 40px;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(255, 200, 0, 0.1);
+            width: 320px;
+        }
+
+        .bulb {
+            font-size: 80px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+
+        .bulb.on {
+            filter: drop-shadow(0 0 20px yellow);
+        }
+
+        .bulb.off {
+            filter: grayscale(100%) brightness(0.4);
+        }
+
+        h1 {
+            font-size: 22px;
+            margin-bottom: 8px;
+            color: #f0f0f0;
+        }
+
+        .status {
+            font-size: 16px;
+            margin-bottom: 30px;
+            color: #aaa;
+        }
+
+        .status span {
+            font-weight: bold;
+        }
+
+        .status span.on {
+            color: #FFD700;
+        }
+
+        .status span.off {
+            color: #888;
+        }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 14px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button.turn-on {
+            background: #FFD700;
+            color: #000;
+        }
+
+        button.turn-off {
+            background: #333;
+            color: #fff;
+        }
+
+        button:hover {
+            opacity: 0.85;
+            transform: scale(1.03);
+        }
+
+        .footer {
+            margin-top: 24px;
+            font-size: 12px;
+            color: #444;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="card">
+        <div class="bulb off" id="bulb">💡</div>
+        <h1>IoT LED Control</h1>
+        <p class="status">LED is: <span id="statusText" class="off">OFF</span></p>
+        <button id="toggleBtn" class="turn-on" onclick="toggleLED()">TURN ON</button>
+        <p class="footer">Built by Water Bender| Firebase + ESP8266</p>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+     const firebaseConfig = {
+       apiKey:            "YOUR_API_KEY",
+       authDomain:        "your-project.firebaseapp.com",
+       databaseURL:       "https://your-project-default-rtdb.firebaseio.com",
+       projectId:         "your-project-id",
+       storageBucket:     "your-project.appspot.com",
+       messagingSenderId: "YOUR_SENDER_ID",
+       appId:             "YOUR_APP_ID"
+};
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const ledRef = ref(db, "led");
+
+        let currentState = false;
+
+        // Listen for changes in Firebase in real time
+        onValue(ledRef, (snapshot) => {
+            currentState = snapshot.val();
+            updateUI(currentState);
+        });
+
+        // Toggle LED
+        window.toggleLED = function () {
+            set(ledRef, !currentState);
+        };
+
+        function updateUI(state) {
+            const bulb = document.getElementById("bulb");
+            const statusText = document.getElementById("statusText");
+            const btn = document.getElementById("toggleBtn");
+
+            if (state) {
+                bulb.className = "bulb on";
+                statusText.textContent = "ON";
+                statusText.className = "on";
+                btn.textContent = "TURN OFF";
+                btn.className = "turn-off";
+            } else {
+                bulb.className = "bulb off";
+                statusText.textContent = "OFF";
+                statusText.className = "off";
+                btn.textContent = "TURN ON";
+                btn.className = "turn-on";
+            }
+        }
+    </script>
+
+</body>
+
+</html>
